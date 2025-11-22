@@ -1,0 +1,144 @@
+# Featurefest Swift Package
+
+A Swift package for integrating feature voting into iOS apps.
+
+## Try It Now
+
+1. Clone this repo and open `Package.swift` in Xcode
+2. Navigate to `Demo/ContentView.swift` in the file browser
+3. Click the **Resume** button (▶️) in the preview pane on the right
+4. See it running with live data!
+
+## Quick Start
+
+The easiest way to add feature voting to your app is with `FeatureBoardView`:
+
+```swift
+import SwiftUI
+import Featurefest
+
+struct MyApp: View {
+    var body: some View {
+        NavigationView {
+            FeatureBoardView(boardId: "your-board-id-here")
+                .navigationTitle("Feature Requests")
+        }
+    }
+}
+```
+
+That's it! The view includes:
+- Automatic feature loading
+- Pull-to-refresh
+- Upvoting with visual feedback
+- Status badges (Ideas, In Progress, Released)
+- Empty state UI
+- Error handling
+
+## Advanced Usage
+
+### Using the Client Directly
+
+```swift
+import Featurefest
+
+// Initialize client
+let client = FeaturefestClient(apiKey: "your-board-id-here")
+
+// Get features
+let features = try await client.getFeatures()
+
+// Upvote a feature
+try await client.upvote(featureId: "feature-id", userId: "user-123")
+
+// Create a feature request
+let feature = try await client.createFeature(
+    title: "New Feature",
+    description: "Feature description",
+    userId: "user-123"
+)
+```
+
+### Custom User IDs
+
+By default, `FeatureBoardView` generates a random UUID for each user. For authenticated users, pass a custom user ID:
+
+```swift
+FeatureBoardView(
+    boardId: "your-board-id",
+    userId: currentUser.id
+)
+```
+
+## Building a Full App
+
+To create a complete iOS app:
+
+1. Create a new iOS app in Xcode
+2. Add this package: File > Add Packages > Add Local... (select this folder)
+3. Import and use:
+   ```swift
+   import Featurefest
+
+   FeatureBoardView(boardId: "your-board-id")
+   ```
+
+## Email Notifications
+
+Email notifications are automatically handled by Supabase database triggers when features are created. No additional client-side setup required.
+
+## More Examples
+
+```swift
+
+
+struct FeaturefestScreen: View {
+    var body: some View {
+        Text("Hello")
+            .onAppear {
+                Task {
+                    do {
+                        let board = try await client.validateAPIKey()
+                        print("Connected to board: \(board.name)")
+                    } catch {
+                        print("Invalid API key: \(error.localizedDescription)")
+                    }
+                    
+                    do {
+                        let features = try await client.getFeatures()
+                        for feature in features {
+                            print("\(feature.title) - \(feature.upvotes) upvotes")
+                        }
+                    } catch {
+                        print("Failed to fetch features: \(error.localizedDescription)")
+                    }
+                }
+            }
+    }
+}
+
+struct FeaturefestCard: View {
+    let title: String
+    let description: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(.white)
+            
+            Text(description)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Color.white.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(Color.white.opacity(0.08))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.2), radius: 6, x: 0, y: 3)
+    }
+}
+
+#Preview {
+    FeaturefestScreen()
+}
