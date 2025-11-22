@@ -37,6 +37,8 @@ That's it! The view includes:
 
 ## Advanced Usage
 
+Featurefest is 100% customizable. Just use the API instead of the FeatureBoardView, and build your own interface and make them interact with the API method described below.
+
 ### Using the Client Directly
 
 ```swift
